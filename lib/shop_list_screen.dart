@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:maqadi/services/shopping_list_service.dart';
 
+import 'data/add_shopping_item_screen.dart';
 import 'data/shopping_list.dart';
 
-class ShoppingListScreen extends StatefulWidget{
+class ShoppingListScreen extends StatefulWidget {
   const ShoppingListScreen({Key? key}) : super(key: key);
 
   @override
@@ -11,11 +12,20 @@ class ShoppingListScreen extends StatefulWidget{
 }
 
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
+  List<bool> checkboxList = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Shop List")),
+      appBar: AppBar(title: const Text("Shop List")),
+      floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.add),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AddShoppingItemScreen()));
+          }),
       body: FutureBuilder(
           future: ShoppingListService.getShoppingDummy(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -26,7 +36,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
             } else {
               ShoppingList sl = (snapshot.data as ShoppingList);
               sl.list.length;
-              List<bool> checkboxList = [];
+
               for (int i = 0; i < sl.list.length; i++) {
                 checkboxList.add(i % 2 == 0);
               }
@@ -34,23 +44,28 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                 itemCount: sl.list.length,
                 itemBuilder: (context, index) {
                   return Container(
-                    child:
-                        Table(children: [
-                          TableRow(children: [
-                            Checkbox(value: checkboxList[index], onChanged: (bool? value){
-                              debugPrint((value as bool).toString());
-                              checkboxList[index] = value;
-                              setState(() {
-                                checkboxList[index] = value;
-                              });
-                            })
-                          ],)
-                        ],),
-                    alignment: Alignment.centerLeft,
+                    child: Table(
+                      children: [
+                        TableRow(
+                          children: [
+                            Checkbox(
+                                value: checkboxList[index],
+                                onChanged: (bool? value) {
+                                  checkboxList[index] = value as bool;
+                                  setState(() {
+                                    checkboxList[index] = value;
+                                  });
+                                }),
+                            Text(sl.list[index].name +
+                                ", x" +
+                                sl.list[index].count.toString()),
+                          ],
+                        ),
+                      ],
+                    ),
                     color: const Color.fromRGBO(255, 10, 10, 65),
                   );
                 },
-
               );
             }
           }),
